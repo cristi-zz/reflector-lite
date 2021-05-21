@@ -122,6 +122,7 @@ The python script can also connect to the docker-compose started api.
 
 ## TODO
 
+ - Watch the blockchain for new channel additions and start fetching blobs.
  - Dive deeper into lbry-api and find a way to download blobs without unpacking the whole stream. Will save disk space.
  - Check for a stream, (head blob and/or some random blobls) the peer list. Useful to see if your always-on machine 
    is seeding and is visible from another location.
