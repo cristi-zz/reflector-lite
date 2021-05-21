@@ -1,0 +1,7 @@
+api: 0.0.0.0:5279
+streaming_server: 127.0.0.1:5280
+data_dir: /data/blobs
+download_dir: /data/downloads
+wallet_dir: /data/wallets
+use_upnp: true
+save_blobs: true

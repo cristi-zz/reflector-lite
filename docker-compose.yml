@@ -1,0 +1,26 @@
+version: "3.9"
+services:
+  lbry-sdk:
+      build:
+        context: .
+        dockerfile: docker/Dockerfile.lbryapi
+      container_name: lbry-sdk-container
+      ports:
+        - "127.0.0.1:5279:5279"
+        - "0.0.0.0:3333:3333"
+        - "0.0.0.0:4444:4444"
+      user: $UIDGID   # Read from host env
+      volumes:
+      - $LBRY_API_DATA_FOLDER:/data/:rw  # Read from host env
+  script-client:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.python_script
+    container_name: script-client-container
+    links:
+      - lbry-sdk
+    depends_on:
+      - lbry-sdk
+    volumes:
+    - .:/deploy
+    command: python3 src/main.py start -l -s http://lbry-sdk:5279

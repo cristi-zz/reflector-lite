@@ -1,0 +1,8 @@
+FROM alpine:3.13
+RUN apk add --no-cache      \
+    python3>=3.8            \
+    py3-pip
+
+RUN mkdir /deploy && chmod 777 /deploy
+WORKDIR /deploy
+ENV HOME /deploy

@@ -1,0 +1,18 @@
+FROM ubuntu:20.04
+RUN apt-get update;apt-get install -y    \
+    nano                                 \
+    git                                  \
+    net-tools                            \
+    unzip                                \
+    wget                                 \
+    && apt-get clean
+
+EXPOSE 5279 3333 4444
+RUN mkdir /deploy && chmod 777 /deploy
+RUN mkdir /data && chmod 777 /data
+USER 1000:1000
+WORKDIR /deploy
+ENV HOME /deploy
+RUN wget https://github.com/lbryio/lbry-sdk/releases/download/v0.97.0/lbrynet-linux.zip && unzip lbrynet-linux.zip
+COPY ./lbrynet_config.yml /deploy/
+CMD /deploy/lbrynet start --config=/deploy/lbrynet_config.yml

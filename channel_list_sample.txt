@@ -1,0 +1,12 @@
+# Sample file for channels to cahce.
+# Save this file as channel_list.txt in project root folder and it will be picked automatically by the python script
+#
+# How to specify a channel:
+# channel URL (eg lbry://@ScottManley#5) [, date/time in YYYY-MM-DD format to load]
+# lines starting with a # are ignored
+
+# Example:
+# lbry://@ScottManley#5, 2021-05-01
+
+# The lbry:// protocol bit can be skipped. Also, the date is optional (but it will cache the whole channel)
+# @ScottManley#5

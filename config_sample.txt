@@ -1,0 +1,2 @@
+# Create a file called config.txt and set a path where the lbry api should cahce the data:
+# LBRY_API_DATA_FOLDER=/tmp/lbry_data/
