@@ -12,6 +12,9 @@ There are easier ways to help with this availability issue, but with far less co
 This app lets you automatically download content from selected channels and with this, the content's blobs will always
 be available.
 
+Also, there is another app that does roughly the same as this one: [github.com/tuxfoo/lbry-seedit](https://github.com/tuxfoo/lbry-seedit). Murphy was at google search when I started working on this app so I found out about it days after I released mine. Go check it out, maybe is a better fit. They have disk management and option to delete content (leaving only the blobs).
+
+
 ## Use cases
 
  - **You want to cache/seed your own videos**. Maybe you are afraid that older videos will not be properly reflected by 
