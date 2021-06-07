@@ -1,4 +1,9 @@
+import time
+
+import pytest
+
 import main
+import requests
 
 lby_api_server = "http://127.0.0.1:5279"
 
@@ -85,5 +90,110 @@ def test_download_videos_from_urls():
 
     video_list = video_list[0:3]
     main.queue_download_video_chunks_from_urls(video_list, lby_api_server)
+
+
+def test_get_list_of_blolbs_for_a_stream_without_downloading():
+    # Test to see if current API version have expected behavior:
+    # Goal: Download only the blobs, without extracting the content
+    # Download main blob of a claim by hacking get parameters
+    # Able to retrieve the blob list?
+
+    # ClaimID: 4daf470b7124f2eeb214a538c54cf48eeaceeff9  the intro video of reflector-lite
+    # URI: @ml-visoft#d/02_mini_reflector_for_LBRY_peer_network_initial#4
+    # sd_hash: 414e639aee7403c778ae9c84f6889e5f8156e38253bf97cb706061d3a7a86a9b254b928854c8f5a7f406dbd3b5a4ff8b
+    # apparently sd_hash is the first blob in the stream
+    # The sd_hash can be retrieved from claim_search by going into value/source/sd_hash
+
+    # clearing the knowledge about the file
+    request_js = {"method": "file_delete", "params":
+        {
+            "claim_id":"4daf470b7124f2eeb214a538c54cf48eeaceeff9",
+            "delete_all":True,
+
+        }}
+    answer = requests.post(lby_api_server, json=request_js).json()
+    assert "error" not in answer, f"Error: {answer['error']}"
+
+    # checking to see if is prior know-how about the file exists.
+    request_js = {"method": "blob_list", "params":
+        {
+            "sd_hash":"414e639aee7403c778ae9c84f6889e5f8156e38253bf97cb706061d3a7a86a9b254b928854c8f5a7f406dbd3b5a4ff8b",
+        }}
+    answer = requests.post(lby_api_server, json=request_js).json()
+    items = answer["result"]["items"]
+    no_items = answer["result"]["total_items"]
+    print(items)
+    assert len(items) == 0 and no_items == 0, "The lbry server know-how about current file should be empty"
+
+    # Put a request for the header blob. Check the "save_file":False parameter that will not retrieve the whole blob list.
+    request_js = {"method": "get", "params":
+        {
+            "uri":"@ml-visoft#d/02_mini_reflector_for_LBRY_peer_network_initial#4",
+            "save_file":False
+        }}
+    answer = requests.post(lby_api_server, json=request_js).json()
+    assert "error" not in answer, f"Error: {answer['error']}"
+
+    # Check if we know about the existence of more blobs
+    request_js = {"method": "blob_list", "params":
+        {
+            "sd_hash":"414e639aee7403c778ae9c84f6889e5f8156e38253bf97cb706061d3a7a86a9b254b928854c8f5a7f406dbd3b5a4ff8b",
+        }}
+    answer = requests.post(lby_api_server, json=request_js).json()
+    items_in_blob_list = answer["result"]["items"]
+    no_items_in_blob_list = answer["result"]["total_items"]
+    assert len(items_in_blob_list) > 10 and no_items_in_blob_list > 10, "The local lbry does not know about any more blobls."
+
+
+@pytest.mark.skip # Downloading directly the sd_hash using blob_get blocks infenitively.
+def test_get_list_of_blolbs_for_a_stream_direct_head_download():
+    # Goal: Download only the blobs, without extracting the content
+    # Test to see if downloading sd_hash blob, gets info about the rest of the blobs, too
+
+    # ClaimID: 4daf470b7124f2eeb214a538c54cf48eeaceeff9  the intro video of reflector-lite
+    # URI: @ml-visoft#d/02_mini_reflector_for_LBRY_peer_network_initial#4
+    # sd_hash: 414e639aee7403c778ae9c84f6889e5f8156e38253bf97cb706061d3a7a86a9b254b928854c8f5a7f406dbd3b5a4ff8b
+    # apparently sd_hash is the first blob in the stream
+    # The sd_hash can be retrieved from claim_search by going into value/source/sd_hash
+
+    # clearing the knowledge about the file
+    request_js = {"method": "file_delete", "params":
+        {
+            "claim_id":"4daf470b7124f2eeb214a538c54cf48eeaceeff9",
+            "delete_all":True,
+
+        }}
+    answer = requests.post(lby_api_server, json=request_js).json()
+    assert "error" not in answer, f"Error: {answer['error']}"
+
+    # checking to see if is prior know-how about the file exists.
+    request_js = {"method": "blob_list", "params":
+        {
+            "sd_hash":"414e639aee7403c778ae9c84f6889e5f8156e38253bf97cb706061d3a7a86a9b254b928854c8f5a7f406dbd3b5a4ff8b",
+        }}
+    answer = requests.post(lby_api_server, json=request_js).json()
+    items = answer["result"]["items"]
+    no_items = answer["result"]["total_items"]
+    print(items)
+    assert len(items) == 0 and no_items == 0, "The lbry server know-how about current file should be empty"
+
+    # Download the blob directly, using sd_hash
+    request_js = {"method": "blob_get", "params":
+        {
+            "blob_hash":"414e639aee7403c778ae9c84f6889e5f8156e38253bf97cb706061d3a7a86a9b254b928854c8f5a7f406dbd3b5a4ff8b",
+            "timeout":10,
+        }}
+    answer = requests.post(lby_api_server, json=request_js).json()
+    time.sleep(10) # well, let it download, the method is async?
+
+    # Check if we know about the existence of more blobs
+    request_js = {"method": "blob_list", "params":
+        {
+            "sd_hash":"414e639aee7403c778ae9c84f6889e5f8156e38253bf97cb706061d3a7a86a9b254b928854c8f5a7f406dbd3b5a4ff8b",
+        }}
+    answer = requests.post(lby_api_server, json=request_js).json()
+    items_in_blob_list = answer["result"]["items"]
+    no_items_in_blob_list = answer["result"]["total_items"]
+    assert len(items_in_blob_list) > 10 and no_items_in_blob_list > 10, "The local lbry does not know about any more blobls."
 
 
