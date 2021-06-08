@@ -145,6 +145,36 @@ def test_get_list_of_blolbs_for_a_stream_without_downloading():
     assert len(items_in_blob_list) > 10 and no_items_in_blob_list > 10, "The local lbry does not know about any more blobls."
 
 
+def test_try_to_download_a_list_of_blobs():
+    # Try to download a blob from a blob list.
+
+    # Put a request for the header blob. Check the "save_file":False parameter that will not retrieve the whole blob list.
+    request_js = {"method": "get", "params":
+        {
+            "uri":"@ml-visoft#d/02_mini_reflector_for_LBRY_peer_network_initial#4",
+            "save_file":False
+        }}
+    answer = requests.post(lby_api_server, json=request_js).json()
+
+    # Check if we know about the existence of more blobs
+    request_js = {"method": "blob_list", "params":
+        {
+            "sd_hash":"414e639aee7403c778ae9c84f6889e5f8156e38253bf97cb706061d3a7a86a9b254b928854c8f5a7f406dbd3b5a4ff8b",
+        }}
+    answer = requests.post(lby_api_server, json=request_js).json()
+    items_in_blob_list = answer["result"]["items"]
+
+    request_js = {"method": "blob_get", "params":
+        {
+            "blob_hash":items_in_blob_list[1],
+            "timeout":10,
+            "read":False,
+        }}
+    # FAIL, it does not return
+    answer = requests.post(lby_api_server, json=request_js).json()
+    print(answer)
+
+
 @pytest.mark.skip # Downloading directly the sd_hash using blob_get blocks infenitively.
 def test_get_list_of_blolbs_for_a_stream_direct_head_download():
     # Goal: Download only the blobs, without extracting the content
