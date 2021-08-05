@@ -148,6 +148,16 @@ def test_get_list_of_blolbs_for_a_stream_without_downloading():
 def test_try_to_download_a_list_of_blobs():
     # Try to download a blob from a blob list.
 
+    # clearing the knowledge about the file
+    request_js = {"method": "file_delete", "params":
+        {
+            "claim_id":"4daf470b7124f2eeb214a538c54cf48eeaceeff9",
+            "delete_all":True,
+
+        }}
+    answer = requests.post(lby_api_server, json=request_js).json()
+    assert "error" not in answer, f"Error: {answer['error']}"
+
     # Put a request for the header blob. Check the "save_file":False parameter that will not retrieve the whole blob list.
     request_js = {"method": "get", "params":
         {
@@ -170,15 +180,18 @@ def test_try_to_download_a_list_of_blobs():
             "timeout":10,
             "read":False,
         }}
-    # FAIL, it does not return
     answer = requests.post(lby_api_server, json=request_js).json()
-    print(answer)
+    assert "error" not in answer, f"Error: {answer['error']}"
+    assert f"Downloaded blob {items_in_blob_list[1]}" in answer['result']
+
 
 
 @pytest.mark.skip # Downloading directly the sd_hash using blob_get blocks infenitively.
 def test_get_list_of_blolbs_for_a_stream_direct_head_download():
     # Goal: Download only the blobs, without extracting the content
     # Test to see if downloading sd_hash blob, gets info about the rest of the blobs, too
+
+    # CONCLUSION: blob_get() only does NOT extract the blob content.
 
     # ClaimID: 4daf470b7124f2eeb214a538c54cf48eeaceeff9  the intro video of reflector-lite
     # URI: @ml-visoft#d/02_mini_reflector_for_LBRY_peer_network_initial#4
